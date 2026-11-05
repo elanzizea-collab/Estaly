@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5b4fa3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Estaly">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Estaly</title>
+<style>
+:root{--bg:#f4f3f8;--card:#fff;--tx:#1d1b2e;--mut:#6b6880;--pri:#5b4fa3;--pri2:#ece9f7;--ok:#f3e98a;--bd:#ddd9ec}
+@media (prefers-color-scheme:dark){:root{--bg:#15131f;--card:#201d31;--tx:#f1eff9;--mut:#a9a5c0;--pri:#9d92e6;--pri2:#2c2845;--ok:#5c5420;--bd:#38335a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));max-width:520px;margin:0 auto}
+h1{font-size:20px;margin:8px 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:14px}
+label.l{font-size:14px;color:var(--mut)}
+.inp{display:flex;align-items:center;gap:8px;margin-top:6px}
+input[type=text]{flex:1;font-size:28px;font-weight:700;padding:10px 12px;border-radius:12px;border:2px solid var(--bd);background:var(--bg);color:var(--tx);width:100%}
+input[type=text]:focus{outline:none;border-color:var(--pri)}
+.eur{font-size:28px;font-weight:700}
+.tier{display:inline-block;background:var(--pri2);color:var(--pri);padding:4px 10px;border-radius:999px;font-size:13px;font-weight:600;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opt{border:2px solid var(--bd);border-radius:14px;padding:10px 6px;text-align:center}
+.opt.best{border-color:var(--pri);background:var(--pri2)}
+.opt .n{font-size:12px;color:var(--mut)}
+.opt .p{font-size:20px;font-weight:800;margin:4px 0}
+.opt .s{font-size:11px;background:var(--ok);border-radius:999px;padding:2px 6px;display:inline-block}
+.opt .e{font-size:11px;color:var(--mut);margin-top:4px}
+.msg{color:var(--mut);font-size:14px;text-align:center;padding:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:7px 4px;text-align:right;border-bottom:1px solid var(--bd)}
+td:first-child,th:first-child{text-align:left}
+tr.on{background:var(--pri2);font-weight:700}
+.btn{position:relative;overflow:hidden;display:block;text-align:center;background:var(--pri);color:#fff;font-weight:700;padding:14px;border-radius:12px;margin-bottom:10px}
+.btn.alt{background:var(--pri2);color:var(--pri)}
+.btn input{position:absolute;inset:0;opacity:0;width:100%;height:100%;font-size:0}
+#pv{display:block;max-width:100%;max-height:160px;margin:0 auto 10px;border-radius:10px}
+#chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{border:2px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:999px;padding:6px 12px;font-size:14px;font-weight:600}
+.seg{display:flex;gap:6px;margin:12px 0}
+.seg button{flex:1;border:2px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:12px;padding:10px 4px;font-weight:600;font-size:14px}
+.seg button.on{border-color:var(--pri);background:var(--pri2);color:var(--pri)}
+.big{background:var(--pri2);border-radius:14px;padding:14px;text-align:center;margin-bottom:8px}
+.big .p{font-size:30px;font-weight:800;color:var(--pri)}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px solid var(--bd)}
+.note{font-size:12px;color:var(--mut);margin-top:8px}
+.wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<h1>Estaly · Offre multimédia</h1>
+
+<div class="card" id="inc">
+  <span class="tier">Assurance incluse dans le prix</span>
+  <label class="btn">📷 Prendre une photo<input id="ph" type="file" accept="image/*" capture="environment"></label>
+  <label class="btn alt">🖼️ Choisir dans la galerie<input id="ph2" type="file" accept="image/*"></label>
+  <img id="pv" alt="" hidden>
+  <div id="st" class="msg" hidden></div>
+  <div id="chips"></div>
+  <label class="l" for="pt">Prix affiché (qui doit rester inchangé)</label>
+  <div class="inp"><input id="pt" type="text" inputmode="decimal" placeholder="0" autocomplete="off"><span class="eur">€</span></div>
+  <div class="seg" id="seg"><button data-k="a1">1 an</button><button data-k="a2" class="on">2 ans</button><button data-k="m">Mensuel</button></div>
+  <div id="out"></div>
+</div>
+
+<div class="card">
+  <label class="l" for="px">Prix de l’appareil à assurer (tarifs de la tranche)</label>
+  <div class="inp"><input id="px" type="text" inputmode="decimal" placeholder="0" autocomplete="off"><span class="eur">€</span></div>
+  <div id="res" style="margin-top:12px"></div>
+</div>
+
+<div class="card wrap">
+  <table id="tb"><thead><tr><th>Tranche</th><th>Mensuel</th><th>1 an</th><th>2 ans</th></tr></thead><tbody></tbody></table>
+</div>
+
+<script>
+var T=[
+ {min:0,max:199.99,l:"0 € – 199,99 €",m:2.99,a1:32.99,a2:53.99},
+ {min:200,max:499.99,l:"200 € – 499,99 €",m:4.99,a1:54.99,a2:89.99},
+ {min:500,max:699.99,l:"500 € – 699,99 €",m:6.99,a1:76.99,a2:129},
+ {min:700,max:999.99,l:"700 € – 999,99 €",m:9.99,a1:109,a2:189},
+ {min:1000,max:1999.99,l:"1 000 € – 1 999,99 €",m:12.99,a1:143,a2:239},
+ {min:2000,max:3000,l:"2 000 € – 3 000 €",m:14.99,a1:164,a2:279}
+];
+function f(n){return n.toLocaleString("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2})+" €"}
+function r2(n){return Math.round(n*100)/100}
+function num(s){return parseFloat(String(s).replace(/\s/g,"").replace(",","."))}
+function find(v){for(var i=0;i<T.length;i++){if(v<T[i].max+0.005&&(v>=T[i].min||i===0))return i}return -1}
+var $=function(id){return document.getElementById(id)};
+
+/* Tableau */
+T.forEach(function(t,i){var r=document.createElement("tr");r.id="r"+i;r.innerHTML="<td>"+t.l+"</td><td>"+String(t.m).replace(".",",")+"</td><td>"+String(t.a1).replace(".",",")+"</td><td>"+String(t.a2).replace(".",",")+"</td>";$("tb").tBodies[0].appendChild(r)});
+
+/* Tarifs de la tranche */
+function upd(){
+  T.forEach(function(_,i){$("r"+i).className=""});
+  var v=num($("px").value),res=$("res");
+  if(isNaN(v)||v<0){res.innerHTML="";return}
+  if(v>3000){res.innerHTML='<div class="msg">Au-delà de 3 000 € : hors barème.</div>';return}
+  var i=find(v);if(i<0){res.innerHTML='<div class="msg">Prix hors barème.</div>';return}
+  var t=T[i];$("r"+i).className="on";
+  res.innerHTML='<span class="tier">Tranche '+t.l+'</span><div class="grid">'+
+   '<div class="opt"><div class="n">Mensuel</div><div class="p">'+f(t.m)+'</div><div class="e">par mois</div></div>'+
+   '<div class="opt"><div class="n">1 an</div><div class="p">'+f(t.a1)+'</div><span class="s">1 mois offert</span><div class="e">économie '+f(t.m*12-t.a1)+'</div></div>'+
+   '<div class="opt best"><div class="n">2 ans</div><div class="p">'+f(t.a2)+'</div><span class="s">6 mois offerts</span><div class="e">économie '+f(t.m*24-t.a2)+'</div></div></div>';
+}
+$("px").addEventListener("input",upd);
+
+/* Assurance incluse */
+var dur="a2",DL={a1:"1 an",a2:"2 ans",m:"1er mois"};
+function solve(P,k){var b=null;T.forEach(function(t,i){var ins=t[k],X=Math.min(r2(P-ins),t.max);if(X<t.min||X<0)return;var tot=r2(X+ins);if(!b||tot>b.tot+0.001||(Math.abs(tot-b.tot)<0.001&&X>b.X))b={i:i,X:X,ins:ins,tot:tot}});return b}
+function updInc(){
+  var P=num($("pt").value),out=$("out");
+  if(isNaN(P)||P<=0){out.innerHTML="";return}
+  var b=solve(P,dur);
+  if(!b){out.innerHTML='<div class="msg">Prix trop bas pour inclure cette assurance.</div>';return}
+  out.innerHTML='<div class="big"><div style="font-size:13px;color:var(--mut)">À soustraire du prix</div><div class="p">− '+f(r2(P-b.X))+'</div></div>'+
+   '<div class="row"><span>Prix affiché</span><b>'+f(P)+'</b></div>'+
+   '<div class="row"><span>Nouveau prix de l’appareil</span><b>'+f(b.X)+'</b></div>'+
+   '<div class="row"><span>Assurance '+DL[dur]+' (tranche '+T[b.i].l+')</span><b>'+f(b.ins)+'</b></div>'+
+   '<div class="row"><span>Total payé par le client</span><b>'+f(b.tot)+'</b></div>'+
+   (b.tot<P-0.001?'<div class="note">Aucun prix ne tombe pile (changement de tranche) : le total est inférieur de '+f(r2(P-b.tot))+' au prix affiché.</div>':'');
+}
+$("pt").addEventListener("input",updInc);
+$("seg").addEventListener("click",function(e){var k=e.target.getAttribute("data-k");if(!k)return;dur=k;[].forEach.call(this.children,function(b){b.className=b.getAttribute("data-k")===k?"on":""});updInc()});
+
+/* Photo + OCR (Tesseract.js, nécessite internet) */
+function msg(t){$("st").hidden=!t;$("st").textContent=t||""}
+function loadScript(src){return new Promise(function(ok,ko){var s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s)})}
+function prep(file){return new Promise(function(res){var im=new Image();im.onload=function(){var s=Math.min(1,1600/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);var x=c.getContext("2d");x.drawImage(im,0,0,c.width,c.height);var d=x.getImageData(0,0,c.width,c.height),p=d.data;for(var i=0;i<p.length;i+=4){var g=0.3*p[i]+0.59*p[i+1]+0.11*p[i+2];p[i]=p[i+1]=p[i+2]=g}x.putImageData(d,0,0);res(c)};im.onerror=function(){res(file)};im.src=URL.createObjectURL(file)})}
+async function onPh(){
+  var file=this.files&&this.files[0];if(!file)return;
+  $("pv").src=URL.createObjectURL(file);$("pv").hidden=false;$("chips").innerHTML="";msg("Lecture du prix…");
+  try{
+    if(!window.Tesseract)await loadScript("https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js");
+    var img=await prep(file);
+    var r=await Tesseract.recognize(img,"eng",{tessedit_char_whitelist:"0123456789,.€ "});
+    var m=(r.data.text||"").match(/\d{1,4}(?:[.,]\d{1,2})?/g)||[];
+    var arr=[];m.forEach(function(s){var n=num(s);if(n>=1&&n<=10000&&arr.indexOf(n)<0)arr.push(n)});
+    arr.sort(function(a,b){return b-a});
+    if(!arr.length){msg("Aucun prix lisible : saisis-le à la main.");return}
+    msg("Vérifie le prix lu avant de continuer.");$("pt").value=String(arr[0]).replace(".",",");updInc();
+    if(arr.length>1){arr.slice(0,6).forEach(function(n){var b=document.createElement("button");b.className="chip";b.textContent=f(n);b.onclick=function(){$("pt").value=String(n).replace(".",",");updInc()};$("chips").appendChild(b)})}
+  }catch(e){msg("Lecture impossible (internet requis la première fois) : saisis le prix à la main.")}
+  this.value="";
+}
+["ph","ph2"].forEach(function(id){$(id).addEventListener("change",onPh)});
+
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
+</script>
+</body>
+</html>
